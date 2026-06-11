@@ -33,6 +33,16 @@ def load_coins():
     return db.get_all_coins()
 
 
+@st.cache_data(ttl=60)
+def load_snapshots(coin_ids: tuple, date_from: str, date_to: str, currency: str) -> pd.DataFrame:
+    return db.get_snapshots(list(coin_ids), date_from, date_to, currency=currency)
+
+
+@st.cache_data(ttl=60)
+def load_latest_snapshots(coin_ids: tuple) -> pd.DataFrame:
+    return db.get_latest_snapshots(list(coin_ids))
+
+
 def moving_average(series: pd.Series, window: int) -> pd.Series:
     return series.rolling(window=window, min_periods=1).mean()
 
@@ -84,7 +94,7 @@ with tab_ts:
         ts_date_range = st.date_input(
             "2️⃣  Date range",
             value=(
-                datetime.date.today() - datetime.timedelta(days=30),
+                datetime.date.today() - datetime.timedelta(days=1),
                 datetime.date.today(),
             ),
             key="ts_dates",
@@ -145,11 +155,11 @@ with tab_ts:
     if not ts_coin_ids:
         st.info("Select at least one coin.")
     else:
-        df = db.get_snapshots(
-            ts_coin_ids,
+        df = load_snapshots(
+            tuple(ts_coin_ids),
             str(ts_date_from),
             str(ts_date_to) + " 23:59:59",
-            currency=ts_currency,
+            ts_currency,
         )
 
         if df.empty:
@@ -288,7 +298,7 @@ with tab_quant:
     if not qa_coin_ids:
         st.info("Select at least one coin.")
     else:
-        df_latest = db.get_latest_snapshots(qa_coin_ids)
+        df_latest = load_latest_snapshots(tuple(qa_coin_ids))
 
         if df_latest.empty:
             st.warning("No data for the selected coins.")
@@ -346,7 +356,7 @@ with tab_quant:
                     x="market_cap_usd",
                     y="volume_24h_usd",
                     color="price_change_24h",
-                    size=df_latest["market_cap_usd"].clip(lower=1),
+                    size=pd.to_numeric(df_latest["market_cap_usd"], errors="coerce").fillna(0).clip(lower=1),
                     hover_name="coin_name",
                     color_continuous_scale="RdYlGn",
                     labels={

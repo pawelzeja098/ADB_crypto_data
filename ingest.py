@@ -36,11 +36,11 @@ def ingest_markets():
     now = datetime.datetime.now(datetime.timezone.utc).replace(second=0, microsecond=0)
     print(f"[Ingest] Fetching market data @ {now.isoformat()} …")
 
-    # Fetch USD and EUR snapshots (2 calls; add delay to respect 30 calls/min demo limit)
+    # Fetch USD and EUR snapshots (2 calls; add delay to respect 100 calls/min limit)
     usd_data = {row["id"]: row for row in client.get_markets(TRACKED_COINS, "usd")}
-    time.sleep(2)
+    time.sleep(0.7)
     eur_data = {row["id"]: row for row in client.get_markets(TRACKED_COINS, "eur")}
-    time.sleep(2)
+    time.sleep(0.7)
 
     for coin_id, row in usd_data.items():
         # Ensure coin exists in reference table
