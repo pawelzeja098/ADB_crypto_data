@@ -6,8 +6,8 @@
 |-----|------|
 | 1   | Mateusz |
 | 2   | Maciej |
-| 3   | *(add name)* |
-| 4   | *(add name)* |
+| 3   | *Paweł* |
+
 
 ---
 
@@ -90,9 +90,9 @@ Comparative statistics across coins at a given point in time or over a period.
 | `/coins/{id}` | Detailed metadata for a single coin |
 | `/global` | Global market dominance and total market cap |
 
-### Database — PostgreSQL
+### Database — MySQL
 
-The ingested data will be persisted in a **PostgreSQL** database with the following core tables:
+The ingested data will be persisted in a **MySQL** database with the following core tables:
 
 ```sql
 coins           -- static coin metadata (id, symbol, name, …)
